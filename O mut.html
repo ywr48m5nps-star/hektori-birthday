@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gëzuar Ditëlindjen Hektor!</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti library for fireworks -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                            800: '#854d0e',
+                        },
+                        bronze: {
+                            500: '#cd7f32',
+                            600: '#b87333',
+                            700: '#8c531b',
+                        },
+                        crimson: {
+                            700: '#991b1b',
+                            800: '#991b1b',
+                            900: '#7f1d1d',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Cinzel', 'Georgia', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #0d0a0a;
+            color: #e5e7eb;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .trojan-title {
+            font-family: 'Cinzel', serif;
+            text-shadow: 0 0 15px rgba(234, 179, 8, 0.4), 0 0 30px rgba(184, 115, 51, 0.2);
+        }
+
+        .gold-border {
+            border: 2px solid #ca8a04;
+            box-shadow: 0 0 15px rgba(202, 138, 4, 0.3), inset 0 0 15px rgba(202, 138, 4, 0.2);
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #ffe58f 0%, #eab308 50%, #b87333 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-button {
+            background: linear-gradient(135deg, #ca8a04 0%, #854d0e 100%);
+            border: 1px solid #facc15;
+            box-shadow: 0 4px 15px rgba(234, 179, 8, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .gold-button:hover {
+            box-shadow: 0 6px 20px rgba(234, 179, 8, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .no-button {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.2s ease, left 0.2s ease;
+        }
+
+        .card-bg {
+            background: linear-gradient(180deg, rgba(20, 15, 15, 0.95) 0%, rgba(10, 8, 8, 0.98) 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes pulse-gold {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(234, 179, 8, 0.4); }
+            50% { transform: scale(1.03); box-shadow: 0 0 25px rgba(234, 179, 8, 0.7); }
+        }
+
+        .pulse-btn {
+            animation: pulse-gold 2s infinite;
+        }
+
+        /* Custom Scrollbar for Letter */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(15, 10, 10, 0.5);
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #ca8a04;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center p-4 relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900 via-stone-950 to-black">
+
+    <!-- Canvas background for fireworks -->
+    <canvas id="fireworksCanvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+    <!-- Header Banner -->
+    <header class="w-full max-w-2xl text-center py-4 my-2 border-b border-amber-900/40">
+        <div class="flex justify-center items-center gap-3 mb-1">
+            <i class="fa-solid font-sharp fa-shield-halved text-amber-500 text-2xl"></i>
+            <h1 class="trojan-title text-xl md:text-2xl font-bold tracking-widest text-amber-400 uppercase">
+                Trojan Realm
+            </h1>
+            <i class="fa-solid fa-helmet-safety text-amber-500 text-2xl hidden"></i>
+            <i class="fa-solid fa-viking text-amber-500 text-2xl"></i>
+        </div>
+        <p class="text-xs uppercase tracking-widest text-amber-600/80 font-serif">Honor • Courage • Loyalty</p>
+    </header>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-xl my-auto flex flex-col items-center justify-center z-10 py-6">
+
+        <!-- INTRO & QUESTION CARD CONTAINER -->
+        <div id="quizContainer" class="w-full card-bg gold-border rounded-2xl p-6 md:p-8 text-center relative overflow-hidden">
+            
+            <!-- Helmet decorative badge -->
+            <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 bg-stone-900 border-2 border-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                <i class="fa-solid fa-chess-knight text-amber-400 text-3xl"></i>
+            </div>
+
+            <div class="mt-6">
+                <!-- Intro Header (Always visible during quiz) -->
+                <p id="introWarning" class="text-xs md:text-sm font-mono text-red-400 mb-4 bg-red-950/40 border border-red-900/50 p-3 rounded-xl leading-relaxed">
+                    "I wanted to tell you something... But before that, you MUST answer these questions, otherwise NO SMS for you! 💀"
+                </p>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-stone-800 rounded-full h-2 mb-6 border border-amber-900/30">
+                    <div id="progressBar" class="bg-gradient-to-r from-amber-600 to-yellow-400 h-1.5 rounded-full transition-all duration-300" style="width: 25%"></div>
+                </div>
+
+                <!-- Dynamic Question Content -->
+                <div id="questionBox" class="min-h-[160px] flex flex-col items-center justify-center">
+                    <span id="questionStep" class="text-xs font-serif uppercase tracking-widest text-amber-500/80 mb-2">Challenge 1 of 4</span>
+                    <h2 id="questionText" class="trojan-title text-lg md:text-xl font-bold text-amber-100 mb-6 leading-snug">
+                        Do you finally admit that you are the ONLY MF in our circle? 💀
+                    </h2>
+                </div>
+
+                <!-- Feedback Toast Message -->
+                <div id="toastMsg" class="h-8 text-xs font-bold text-amber-400 opacity-0 transition-opacity duration-300 mb-2 flex items-center justify-center">
+                    Nice try, MF 💀
+                </div>
+
+                <!-- Action Buttons Area -->
+                <div id="buttonsArea" class="relative w-full min-h-[120px] flex items-center justify-center gap-4 flex-wrap">
+                    <button id="btnYes" onclick="handleAnswer(true)" class="gold-button pulse-btn text-amber-950 font-bold font-serif text-base md:text-lg px-8 py-3.5 rounded-xl uppercase tracking-wider cursor-pointer z-20">
+                        YES ⚔️
+                    </button>
+                    
+                    <button id="btnNo" onclick="handleNoClick()" class="no-button bg-stone-800 hover:bg-stone-700 text-red-400 font-bold font-serif text-sm px-6 py-3 rounded-xl border border-red-900/60 cursor-pointer z-10">
+                        NO
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FINAL EMOTIONAL TROJAN LETTER CONTAINER (Hidden initially) -->
+        <div id="letterContainer" class="w-full card-bg gold-border rounded-2xl p-6 md:p-8 hidden relative">
+            
+            <!-- Decorative Seal Top -->
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-amber-600 to-amber-900 border-2 border-yellow-400 shadow-xl mb-3">
+                    <i class="fa-solid fa-crown text-amber-200 text-2xl"></i>
+                </div>
+                <h2 class="trojan-title text-xl md:text-2xl font-bold gold-gradient-text uppercase tracking-wide">
+                    Gëzuar ditëlindjen, Hektori i Tropojës! 👑⚔️
+                </h2>
+                <div class="w-32 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto mt-3"></div>
+            </div>
+
+            <!-- Letter Body -->
+            <div class="text-stone-200 text-sm md:text-base leading-relaxed space-y-4 max-h-[60vh] overflow-y-auto custom-scroll pr-2 text-justify">
+                
+                <p class="font-bold text-amber-300 text-base md:text-lg text-center bg-amber-950/30 p-3 rounded-lg border border-amber-800/40">
+                    Krahu im i djathtë 🛡️, të kam shumë shok o mut! ❤️
+                </p>
+
+                <p>
+                    Të uroj nga zemra vetëm gjëra të mira në jetë, vetëm mirësi, bekime dhe lumturi pa fund. Uroj që jeta të të kthejë shumëfish gjithë të mirën që mbart brenda vetes, sepse njerëzit me një shpirt të bukur si i yti meritojnë të përjetojnë gjërat më të bukura që kjo jetë ka për të ofruar.
+                </p>
+
+                <p>
+                    Uroj që të kesh gjithmonë arsye për të buzëqeshur, forcë për çdo vështirësi dhe paqe në shpirt, edhe në ditët kur gjërat nuk shkojnë ashtu siç dëshiron. Uroj që çdo ëndërr që mban në zemër të gjejë rrugën e saj drejt realitetit dhe që të mos të mungojnë kurrë njerëzit që të duan sinqerisht, që të vlerësojnë për atë që je dhe që ta bëjnë jetën tënde më të bukur vetëm duke qenë pjesë e saj.
+                </p>
+
+                <p>
+                    Mbi të gjitha, uroj që një ditë të kesh pranë dikë që ta do shpirtin po aq sa bukurinë e tij, dikë që të të kuptojë edhe në heshtje, që të të sjellë qetësi, të të bëjë të buzëqeshësh me gjithë zemër dhe të të kujtojë çdo ditë se sa i veçantë je. Dikë me të cilin lumturia të ndihet e thjeshtë, dashuria e sigurt dhe jeta pak më e bukur. Dikë që të të dojë në mënyrën që e meriton, pa të të bërë kurrë të dyshosh në vlerën tënde.
+                </p>
+
+                <p>
+                    Dhe dua që ta dish se të vlerësoj shumë për njeriun që je. Jam vërtet e lumtur që të kam në jetën time dhe shpresoj që jeta të të sjellë gjithmonë arsye për të qenë i lumtur, sepse ti meriton shumë të mira. Uroj që të mos ta humbasësh kurrë atë shpirtin tënd të bukur, atë që të bën të jesh pikërisht ti.
+                </p>
+
+                <p class="font-serif text-amber-200 text-center italic pt-2">
+                    Zoti të bekoftë gjithmonë, të ruajtë nga çdo e keqe dhe të dhuroftë shëndet, dashuri, suksese dhe një lumturi që të ndihet thellë në shpirt. Dhe qofshin ditët më të bukura të jetës sate ende përpara teje. ❤️
+                </p>
+            </div>
+
+            <!-- Footer Replay/Share Button -->
+            <div class="mt-6 pt-4 border-t border-amber-900/40 text-center flex justify-center gap-3">
+                <button onclick="launchFireworks()" class="gold-button text-amber-950 font-bold px-5 py-2.5 rounded-lg text-xs md:text-sm uppercase tracking-wider flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-fire text-amber-900"></i> Festo Përsëri 🔥
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-3 text-xs text-stone-500 font-serif">
+        Trojan Victory Birthday • Dedicated to Hektor
+    </footer>
+
+    <!-- Interactive Script -->
+    <script>
+        // Questions Data
+        const questions = [
+            {
+                step: "Challenge 1 of 4",
+                text: "Do you finally admit that you are the ONLY MF in our circle? 💀",
+                toast: "Nice try, MF 💀"
+            },
+            {
+                step: "Challenge 2 of 4",
+                text: "Do you admit that you are an absolute SHIT / MUT? 💩",
+                toast: "Nice try, MUT 💩"
+            },
+            {
+                step: "Challenge 3 of 4",
+                text: "Do you accept that you are a total KAFSH & BUDALL? 🦍",
+                toast: "No escape, KAFSH 🦍"
+            },
+            {
+                step: "Challenge 4 of 4",
+                text: "Are you ready to face the truth, Hektor i Tropojës?",
+                toast: "You MUST face it! ⚔️"
+            }
+        ];
+
+        let currentQ = 0;
+        let yesScale = 1;
+        let noClickCount = 0;
+
+        const btnYes = document.getElementById('btnYes');
+        const btnNo = document.getElementById('btnNo');
+        const questionText = document.getElementById('questionText');
+        const questionStep = document.getElementById('questionStep');
+        const progressBar = document.getElementById('progressBar');
+        const toastMsg = document.getElementById('toastMsg');
+        const buttonsArea = document.getElementById('buttonsArea');
+
+        // Handle NO button fleeing and growing YES button
+        function handleNoClick() {
+            noClickCount++;
+            
+            // Show toast message
+            toastMsg.innerText = questions[currentQ].toast;
+            toastMsg.style.opacity = '1';
+            setTimeout(() => {
+                toastMsg.style.opacity = '0';
+            }, 1500);
+
+            // Scale YES button larger
+            yesScale += 0.35;
+            btnYes.style.transform = `scale(${yesScale})`;
+
+            // Make NO button jump around randomly within container or screen bounds
+            const areaRect = buttonsArea.getBoundingClientRect();
+            const btnRect = btnNo.getBoundingClientRect();
+
+            // Calculate random relative offset
+            const maxX = Math.min(180, window.innerWidth / 2 - 60);
+            const maxY = 100;
+
+            const randomX = (Math.random() - 0.5) * maxX * 2;
+            const randomY = (Math.random() - 0.5) * maxY * 2;
+
+            btnNo.style.position = 'relative';
+            btnNo.style.left = `${randomX}px`;
+            btnNo.style.top = `${randomY}px`;
+
+            // On multiple clicks, make NO button smaller or faint
+            if (noClickCount > 3) {
+                btnNo.style.opacity = '0.5';
+            }
+        }
+
+        // Handle YES button selection
+        function handleAnswer(isYes) {
+            if (!isYes) return;
+
+            currentQ++;
+
+            // Reset YES button scale and NO position for next question
+            yesScale = 1;
+            btnYes.style.transform = `scale(1)`;
+            btnNo.style.position = 'static';
+            btnNo.style.left = '0px';
+            btnNo.style.top = '0px';
+            btnNo.style.opacity = '1';
+            noClickCount = 0;
+
+            if (currentQ < questions.length) {
+                // Update Question Content
+                questionStep.innerText = questions[currentQ].step;
+                questionText.innerText = questions[currentQ].text;
+                
+                // Update progress bar
+                const progressPercent = ((currentQ + 1) / questions.length) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+            } else {
+                // All questions finished -> Reveal Letter & Fireworks
+                revealLetter();
+            }
+        }
+
+        // Reveal final Trojan Letter
+        function revealLetter() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            const letterContainer = document.getElementById('letterContainer');
+            letterContainer.classList.remove('hidden');
+            letterContainer.classList.add('animate-fade-in');
+
+            // Launch fireworks animation
+            launchFireworks();
+        }
+
+        // Fireworks celebration effect using canvas-confetti
+        function launchFireworks() {
+            const duration = 4 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+
+                // Gold, Bronze and Crimson themed confetti
+                confetti(Object.assign({}, defaults, { 
+                    particleCount, 
+                    origin: { x: randomInRange(0.1, 0.4), y: Math.random() - 0.2 },
+                    colors: ['#facc15', '#eab308', '#ca8a04', '#cd7f32', '#991b1b']
+                }));
+                confetti(Object.assign({}, defaults, { 
+                    particleCount, 
+                    origin: { x: randomInRange(0.6, 0.9), y: Math.random() - 0.2 },
+                    colors: ['#facc15', '#eab308', '#ca8a04', '#cd7f32', '#991b1b']
+                }));
+            }, 250);
+        }
+    </script>
+</body>
+</html>
